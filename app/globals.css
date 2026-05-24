@@ -76,18 +76,28 @@ a {
 }
 
 html[data-inspector-active="true"] .inspect-region {
+  /* Label sits OUTSIDE the outline (above the region at top:
+   * -32px). Reserve that space externally with margin-top so
+   * adjacent regions don't collide. No padding-top — the content
+   * starts at the top of the region, the outline hugs it tight,
+   * and the label floats above the whole thing. This is the only
+   * arrangement that guarantees the dashed line is unbroken: the
+   * label and outline never share pixels. */
   outline: 1px dashed;
   outline-offset: 4px;
-  padding-top: 32px;
-  margin-top: 16px;
+  margin-top: 40px;
   margin-bottom: 16px;
 }
 
 html[data-inspector-active="true"] .inspect-label {
   display: inline-block;
   position: absolute;
-  top: 6px;
-  left: 6px;
+  /* -32px clears the outline (which is +4px outside the region)
+   * with 28px of breathing room between the label and the dashed
+   * line. The label is on its own row, above the outline, no
+   * overlap possible. */
+  top: -32px;
+  left: 0;
   padding: 4px 10px;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 12px;
@@ -103,8 +113,8 @@ html[data-inspector-active="true"] .inspect-label {
 html[data-inspector-active="true"] .inspect-label-note {
   display: inline-block;
   position: absolute;
-  top: 6px;
-  left: 180px;
+  top: -32px;
+  left: 170px;
   padding: 4px 10px;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 12px;
