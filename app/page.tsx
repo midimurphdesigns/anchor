@@ -73,6 +73,12 @@ export default function HomePage() {
         >
           → Live AEO dashboard
         </Link>
+        <Link
+          href="/docs/rendering"
+          className="text-[var(--color-ink-dim)] hover:text-[var(--color-accent)]"
+        >
+          → Rendering docs
+        </Link>
       </nav>
 
       <footer className="mt-24 border-t border-[var(--color-rule)] pt-8 text-sm text-[var(--color-ink-dim)]">
