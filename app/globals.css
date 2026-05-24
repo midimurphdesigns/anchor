@@ -64,20 +64,29 @@ a {
 }
 
 html[data-inspector-active="true"] .inspect-region {
+  /* Outline at offset 0 (not 4px) so the dashed line hugs the
+   * content. The label below uses negative-top to sit ABOVE the
+   * outline with its own background — no collision with the
+   * outline stroke. Top padding gives the label room without
+   * pushing the outline into adjacent regions. */
   outline: 1px dashed currentColor;
-  outline-offset: 4px;
-  margin: 2px;
+  outline-offset: 2px;
+  margin-top: 18px;
+  margin-bottom: 8px;
 }
 
 html[data-inspector-active="true"] .inspect-region::before {
   content: attr(data-inspect);
   position: absolute;
-  top: -10px;
+  /* -18px clears the outline (which is offset 2px outside the
+   * region). The label has its own background so it visually
+   * floats above the dashed line rather than punching through it. */
+  top: -18px;
   left: 0;
-  padding: 2px 6px;
+  padding: 2px 8px;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 9px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-canvas);
@@ -85,16 +94,21 @@ html[data-inspector-active="true"] .inspect-region::before {
   z-index: 100;
   pointer-events: none;
   white-space: nowrap;
+  line-height: 14px;
 }
 
 html[data-inspector-active="true"] .inspect-region[data-inspect-note]:not([data-inspect-note=""])::after {
   content: attr(data-inspect-note);
   position: absolute;
-  top: -10px;
-  left: 100px;
-  padding: 2px 6px;
+  top: -18px;
+  /* Push the note further right so it doesn't collide with the
+   * widest mode label ("SERVER DYNAMIC"). Calc accounts for the
+   * label's own width with a fixed offset that fits the longest
+   * label cleanly. */
+  left: 145px;
+  padding: 2px 8px;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.05em;
   color: var(--color-ink-dim);
   background: var(--color-canvas);
@@ -102,9 +116,10 @@ html[data-inspector-active="true"] .inspect-region[data-inspect-note]:not([data-
   z-index: 100;
   pointer-events: none;
   white-space: nowrap;
-  max-width: 280px;
+  max-width: 360px;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 14px;
 }
 
 /* Per-mode coloring via attribute selectors. */

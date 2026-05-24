@@ -120,9 +120,9 @@ export function RenderInspector() {
           right: 16,
           zIndex: 9999,
           display: "flex",
-          gap: 8,
+          gap: 10,
           fontFamily: "var(--font-mono), monospace",
-          fontSize: 11,
+          fontSize: 13,
         }}
       >
         <Toggle
@@ -154,12 +154,13 @@ function Toggle({
       type="button"
       onClick={onClick}
       style={{
-        padding: "8px 12px",
+        padding: "10px 16px",
         border: `1px solid ${active ? "#4dffff" : "rgba(245,241,234,0.2)"}`,
         background: active ? "rgba(77,255,255,0.10)" : "rgba(10,10,11,0.85)",
         color: active ? "#4dffff" : "#a8a39a",
         cursor: "pointer",
-        letterSpacing: "0.1em",
+        letterSpacing: "0.12em",
+        fontWeight: 500,
         backdropFilter: "blur(8px)",
       }}
     >
@@ -183,20 +184,27 @@ function BoundaryLegend() {
     <div
       style={{
         position: "fixed",
-        bottom: 70,
+        bottom: 78,
         right: 16,
         zIndex: 9998,
-        maxWidth: 340,
-        padding: 14,
+        maxWidth: 360,
+        padding: 16,
         background: "rgba(10,10,11,0.92)",
         border: "1px solid rgba(245,241,234,0.15)",
         backdropFilter: "blur(8px)",
         fontFamily: "var(--font-mono), monospace",
-        fontSize: 10,
+        fontSize: 12,
         color: "#a8a39a",
       }}
     >
-      <p style={{ marginBottom: 10, letterSpacing: "0.1em" }}>
+      <p
+        style={{
+          marginBottom: 12,
+          letterSpacing: "0.12em",
+          color: "#f5f1ea",
+          fontSize: 11,
+        }}
+      >
         RENDER-MODE LEGEND
       </p>
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
@@ -207,16 +215,17 @@ function BoundaryLegend() {
               key={m}
               style={{
                 display: "flex",
-                alignItems: "baseline",
-                gap: 8,
-                marginBottom: 4,
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 6,
+                lineHeight: 1.4,
               }}
             >
               <span
                 style={{
                   display: "inline-block",
-                  width: 10,
-                  height: 10,
+                  width: 12,
+                  height: 12,
                   background: meta.color,
                   flexShrink: 0,
                 }}
@@ -243,20 +252,28 @@ function PerfPanel({ sample }: { sample: PerfSample }) {
     <div
       style={{
         position: "fixed",
-        bottom: 70,
+        bottom: 78,
         left: 16,
         zIndex: 9998,
-        maxWidth: 360,
-        padding: 14,
+        maxWidth: 400,
+        padding: 16,
         background: "rgba(10,10,11,0.92)",
         border: "1px solid rgba(245,241,234,0.15)",
         backdropFilter: "blur(8px)",
         fontFamily: "var(--font-mono), monospace",
-        fontSize: 10,
+        fontSize: 12,
         color: "#a8a39a",
+        lineHeight: 1.5,
       }}
     >
-      <p style={{ marginBottom: 10, letterSpacing: "0.1em" }}>
+      <p
+        style={{
+          marginBottom: 12,
+          letterSpacing: "0.12em",
+          color: "#f5f1ea",
+          fontSize: 11,
+        }}
+      >
         PERFORMANCE — {sample.url}
       </p>
 
@@ -274,13 +291,20 @@ function PerfPanel({ sample }: { sample: PerfSample }) {
 
       <hr
         style={{
-          margin: "10px 0",
+          margin: "14px 0",
           border: "none",
           borderTop: "1px solid rgba(245,241,234,0.1)",
         }}
       />
 
-      <p style={{ color: "#f5f1ea", marginBottom: 4 }}>
+      <p
+        style={{
+          color: "#f5f1ea",
+          marginBottom: 6,
+          letterSpacing: "0.12em",
+          fontSize: 11,
+        }}
+      >
         COUNTERFACTUAL
       </p>
       <Row
@@ -300,9 +324,9 @@ function PerfPanel({ sample }: { sample: PerfSample }) {
 
       <p
         style={{
-          marginTop: 10,
-          opacity: 0.6,
-          fontSize: 9,
+          marginTop: 14,
+          opacity: 0.65,
+          fontSize: 11,
           lineHeight: 1.5,
         }}
       >
@@ -329,7 +353,7 @@ function Row({
       style={{
         display: "flex",
         justifyContent: "space-between",
-        marginBottom: 3,
+        marginBottom: 5,
       }}
     >
       <span>{label}</span>
