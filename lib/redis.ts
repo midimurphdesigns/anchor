@@ -28,20 +28,51 @@ type RedisClient = {
   expire: (key: string, ttlSec: number) => Promise<number>;
 };
 
-const stub: RedisClient = {
-  async zadd() {
-    return null;
-  },
-  async zcount() {
-    return 0;
-  },
-  async zrange() {
-    return [];
-  },
-  async expire() {
-    return 0;
-  },
-};
+/* Local in-memory fallback. Activates when UPSTASH_* env vars are
+ * missing — keeps the AEO logger, nonce store, and idempotency
+ * cache all functional during dev/test without standing up Upstash.
+ * The data is per-process, so a server restart wipes it; that's
+ * the right tradeoff for local-only use. Production Vercel
+ * deployments must set the env vars to get cross-instance state. */
+function makeMemoryClient(): RedisClient {
+  const sets = new Map<string, Map<string, number>>();
+  return {
+    async zadd(key, args) {
+      let set = sets.get(key);
+      if (!set) {
+        set = new Map();
+        sets.set(key, set);
+      }
+      if (set.has(args.member)) return 0;
+      set.set(args.member, args.score);
+      return 1;
+    },
+    async zcount(key, min, max) {
+      const set = sets.get(key);
+      if (!set) return 0;
+      let n = 0;
+      for (const score of set.values()) {
+        if (score >= min && score <= max) n++;
+      }
+      return n;
+    },
+    async zrange(key, start, stop, opts) {
+      const set = sets.get(key);
+      if (!set) return [];
+      const entries = [...set.entries()].sort((a, b) =>
+        opts?.rev ? b[1] - a[1] : a[1] - b[1],
+      );
+      return entries.slice(start, stop + 1).map(([m]) => m);
+    },
+    async expire() {
+      /* No-op in memory mode — process restart wipes everything
+       * anyway, so an explicit TTL adds no value. */
+      return 1;
+    },
+  };
+}
+
+const stub: RedisClient = makeMemoryClient();
 
 function build(): RedisClient {
   const url = process.env.UPSTASH_REDIS_REST_URL;
