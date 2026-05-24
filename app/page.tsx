@@ -54,6 +54,27 @@ export default function HomePage() {
         ))}
       </ul>
 
+      <nav className="mt-16 flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--color-rule)] pt-6 text-sm">
+        <Link
+          href="/compare"
+          className="text-[var(--color-ink-dim)] hover:text-[var(--color-accent)]"
+        >
+          → Compare two products
+        </Link>
+        <Link
+          href="/agents"
+          className="text-[var(--color-ink-dim)] hover:text-[var(--color-accent)]"
+        >
+          → For agents
+        </Link>
+        <Link
+          href="/dashboard"
+          className="text-[var(--color-ink-dim)] hover:text-[var(--color-accent)]"
+        >
+          → Live AEO dashboard
+        </Link>
+      </nav>
+
       <footer className="mt-24 border-t border-[var(--color-rule)] pt-8 text-sm text-[var(--color-ink-dim)]">
         <p>
           Build 3 of the trilogy. See{" "}
