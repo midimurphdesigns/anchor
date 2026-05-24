@@ -15,6 +15,7 @@
 import Link from "next/link";
 import { CATALOG } from "@/lib/catalog";
 import { CompareForm } from "@/components/CompareForm";
+import { Inspect } from "@/components/inspector/BoundaryLabel";
 
 export const metadata = {
   title: "Compare — anchor",
@@ -46,7 +47,9 @@ export default function ComparePage() {
         recommendation when they don't really substitute for each other.
       </p>
 
-      <CompareForm catalog={catalog} />
+      <Inspect mode="client" note="CompareForm — 'use client', Server Action → streamObject">
+        <CompareForm catalog={catalog} />
+      </Inspect>
     </main>
   );
 }

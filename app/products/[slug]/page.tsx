@@ -19,6 +19,7 @@ import { loadAllSlugs, loadProduct } from "@/lib/product-loader";
 import { formatPrice } from "@/lib/catalog";
 import { canonicalUrl, productJsonLd } from "@/lib/citation";
 import { AgentTally } from "@/components/AgentTally";
+import { Inspect } from "@/components/inspector/BoundaryLabel";
 import type { Metadata } from "next";
 
 type RouteParams = { slug: string };
@@ -72,51 +73,61 @@ export default async function ProductPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
 
-      <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
-        <Link href="/" className="hover:text-[var(--color-accent)]">
-          ← /ANCHOR
-        </Link>
-        {"  /  "}
-        {product.category.toUpperCase()}
-      </p>
+      <Inspect mode="static-shell" note="PPR static shell — built per-slug at build">
+        <header>
+          <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
+            <Link href="/" className="hover:text-[var(--color-accent)]">
+              ← /ANCHOR
+            </Link>
+            {"  /  "}
+            {product.category.toUpperCase()}
+          </p>
 
-      <h1 className="display mt-6 text-4xl sm:text-6xl">{product.name}</h1>
-      <p className="mt-3 text-sm text-[var(--color-ink-dim)]">
-        {product.brand}
-      </p>
+          <h1 className="display mt-6 text-4xl sm:text-6xl">{product.name}</h1>
+          <p className="mt-3 text-sm text-[var(--color-ink-dim)]">
+            {product.brand}
+          </p>
+        </header>
+      </Inspect>
 
-      <p className="mt-8 text-lg leading-relaxed text-[var(--color-ink)]">
-        {product.shortDescription}
-      </p>
+      <Inspect mode="cached" note="loadProduct() — 'use cache' + cacheTag('product:<slug>')">
+        <section>
+          <p className="mt-8 text-lg leading-relaxed text-[var(--color-ink)]">
+            {product.shortDescription}
+          </p>
 
-      <div className="mt-12 flex items-baseline justify-between gap-6 border-y border-[var(--color-rule)] py-5">
-        <div className="display text-3xl">
-          {formatPrice(product.pricing.listCents)}
-        </div>
-        <div className="mono text-xs uppercase tracking-wider text-[var(--color-ink-dim)]">
-          {product.inventory > 0
-            ? `${product.inventory} IN STOCK`
-            : "OUT OF STOCK"}
-        </div>
-      </div>
-
-      <h2 className="display mt-16 text-2xl">Specifications.</h2>
-      <dl className="mono mt-6 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-        {product.specs.map((s) => (
-          <div
-            key={s.label}
-            className="border-l-2 border-[var(--color-rule)] pl-4"
-          >
-            <dt className="text-xs uppercase tracking-wider text-[var(--color-ink-dim)]">
-              {s.label}
-            </dt>
-            <dd className="mt-1 text-[var(--color-ink)]">{s.value}</dd>
+          <div className="mt-12 flex items-baseline justify-between gap-6 border-y border-[var(--color-rule)] py-5">
+            <div className="display text-3xl">
+              {formatPrice(product.pricing.listCents)}
+            </div>
+            <div className="mono text-xs uppercase tracking-wider text-[var(--color-ink-dim)]">
+              {product.inventory > 0
+                ? `${product.inventory} IN STOCK`
+                : "OUT OF STOCK"}
+            </div>
           </div>
-        ))}
-      </dl>
+
+          <h2 className="display mt-16 text-2xl">Specifications.</h2>
+          <dl className="mono mt-6 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+            {product.specs.map((s) => (
+              <div
+                key={s.label}
+                className="border-l-2 border-[var(--color-rule)] pl-4"
+              >
+                <dt className="text-xs uppercase tracking-wider text-[var(--color-ink-dim)]">
+                  {s.label}
+                </dt>
+                <dd className="mt-1 text-[var(--color-ink)]">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </Inspect>
 
       <div className="mt-16 flex flex-wrap items-baseline justify-between gap-4 border-t border-[var(--color-rule)] pt-6">
-        <AgentTally slug={slug} />
+        <Inspect mode="ppr-hole" note="Suspense + headers() — streams in at request time">
+          <AgentTally slug={slug} />
+        </Inspect>
         <Link
           href={`/products/${slug}/agent/markdown`}
           className="mono text-xs uppercase tracking-wider text-[var(--color-ink-dim)] hover:text-[var(--color-accent)]"
