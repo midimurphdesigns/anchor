@@ -64,26 +64,27 @@ a {
 }
 
 html[data-inspector-active="true"] .inspect-region {
-  /* Outline at offset 0 (not 4px) so the dashed line hugs the
-   * content. The label below uses negative-top to sit ABOVE the
-   * outline with its own background — no collision with the
-   * outline stroke. Top padding gives the label room without
-   * pushing the outline into adjacent regions. */
+  /* Reserve space ABOVE the content for the label so it never
+   * occludes the first line of text. padding-top creates a
+   * dedicated label strip inside the outlined region; the label
+   * sits in that strip via top: 0. outline-offset: 2px keeps the
+   * dashed line tight to the padded box. */
   outline: 1px dashed currentColor;
   outline-offset: 2px;
-  margin-top: 18px;
-  margin-bottom: 8px;
+  padding-top: 28px;
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 
 html[data-inspector-active="true"] .inspect-region::before {
   content: attr(data-inspect);
   position: absolute;
-  /* -18px clears the outline (which is offset 2px outside the
-   * region). The label has its own background so it visually
-   * floats above the dashed line rather than punching through it. */
-  top: -18px;
-  left: 0;
-  padding: 2px 8px;
+  /* Sits in the padding-top strip — top: 4px puts it just below
+   * the outline edge, inside the region. No content collision
+   * because padding-top reserved the space. */
+  top: 4px;
+  left: 4px;
+  padding: 3px 9px;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 11px;
   font-weight: 500;
@@ -100,13 +101,9 @@ html[data-inspector-active="true"] .inspect-region::before {
 html[data-inspector-active="true"] .inspect-region[data-inspect-note]:not([data-inspect-note=""])::after {
   content: attr(data-inspect-note);
   position: absolute;
-  top: -18px;
-  /* Push the note further right so it doesn't collide with the
-   * widest mode label ("SERVER DYNAMIC"). Calc accounts for the
-   * label's own width with a fixed offset that fits the longest
-   * label cleanly. */
-  left: 145px;
-  padding: 2px 8px;
+  top: 4px;
+  left: 160px;
+  padding: 3px 9px;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.05em;
@@ -116,7 +113,7 @@ html[data-inspector-active="true"] .inspect-region[data-inspect-note]:not([data-
   z-index: 100;
   pointer-events: none;
   white-space: nowrap;
-  max-width: 360px;
+  max-width: 420px;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 14px;

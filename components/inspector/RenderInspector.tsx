@@ -122,7 +122,7 @@ export function RenderInspector() {
           display: "flex",
           gap: 10,
           fontFamily: "var(--font-mono), monospace",
-          fontSize: 13,
+          fontSize: 14,
         }}
       >
         <Toggle
@@ -154,13 +154,14 @@ function Toggle({
       type="button"
       onClick={onClick}
       style={{
-        padding: "10px 16px",
-        border: `1px solid ${active ? "#4dffff" : "rgba(245,241,234,0.2)"}`,
-        background: active ? "rgba(77,255,255,0.10)" : "rgba(10,10,11,0.85)",
-        color: active ? "#4dffff" : "#a8a39a",
+        padding: "12px 18px",
+        border: `1px solid ${active ? "#4dffff" : "rgba(245,241,234,0.3)"}`,
+        background: active ? "rgba(77,255,255,0.10)" : "rgba(10,10,11,0.92)",
+        color: active ? "#4dffff" : "#f5f1ea",
         cursor: "pointer",
-        letterSpacing: "0.12em",
+        letterSpacing: "0.14em",
         fontWeight: 500,
+        fontSize: 14,
         backdropFilter: "blur(8px)",
       }}
     >
