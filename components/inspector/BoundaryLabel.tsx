@@ -16,8 +16,13 @@
  * RenderInspector client component flips when its toggle is on.
  */
 import type { ReactNode } from "react";
-import type { InspectMode } from "@/lib/inspector-modes";
+import { INSPECT_MODES, type InspectMode } from "@/lib/inspector-modes";
 
+/* Real DOM labels (not CSS ::before) because pseudo-elements have
+ * proven unreliable across the Tailwind v4 + Turbopack pipeline.
+ * The labels are absolutely positioned, gated behind the
+ * data-inspector-active attribute on <html> via CSS so they remain
+ * invisible when the inspector is off. */
 export function Inspect({
   mode,
   note,
@@ -28,13 +33,22 @@ export function Inspect({
   note?: string;
   children: ReactNode;
 }) {
+  const meta = INSPECT_MODES[mode];
   return (
-    <div
-      data-inspect={mode}
-      data-inspect-note={note ?? ""}
-      className="inspect-region"
-    >
-      {children}
+    <div className="inspect-region" data-inspect={mode}>
+      <span
+        className="inspect-label"
+        style={{
+          background: meta.color,
+          color: "#0a0a0b",
+        }}
+      >
+        {meta.label}
+      </span>
+      {note ? (
+        <span className="inspect-label-note">{note}</span>
+      ) : null}
+      <div className="inspect-children">{children}</div>
     </div>
   );
 }

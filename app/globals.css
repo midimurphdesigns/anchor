@@ -53,92 +53,96 @@ a {
 /* ─────────────────────────────────────────────────────────────
  * Render Inspector — dev-mode overlay.
  *
- * Outlines + corner labels appear ONLY when <html> carries
- * data-inspector-active="true", which the client RenderInspector
- * component toggles via localStorage. Using outline (not border)
- * so toggling never affects layout.
+ * Approach: real DOM elements for labels (not CSS ::before
+ * pseudo-elements, which proved unreliable in Tailwind v4 +
+ * Turbopack). Labels live as <span> children rendered by the
+ * <Inspect> wrapper but are hidden until the toggle activates.
+ *
+ * .inspect-region itself stays in the DOM all the time. Its
+ * children include .inspect-label and .inspect-label-note (the
+ * label DOM elements) plus .inspect-children (the actual user
+ * content wrapper). When the inspector is off, labels render at
+ * display: none; the wrapper has no outline; content sits where
+ * it would naturally.
  * ───────────────────────────────────────────────────────────── */
 
 .inspect-region {
   position: relative;
 }
 
+.inspect-label,
+.inspect-label-note {
+  display: none;
+}
+
 html[data-inspector-active="true"] .inspect-region {
-  /* Reserve space ABOVE the content for the label so it never
-   * occludes the first line of text. padding-top creates a
-   * dedicated label strip inside the outlined region; the label
-   * sits in that strip via top: 0. outline-offset: 2px keeps the
-   * dashed line tight to the padded box. */
-  outline: 1px dashed currentColor;
-  outline-offset: 2px;
-  padding-top: 28px;
-  margin-top: 12px;
-  margin-bottom: 12px;
+  outline: 1px dashed;
+  outline-offset: 4px;
+  padding-top: 32px;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
-html[data-inspector-active="true"] .inspect-region::before {
-  content: attr(data-inspect);
+html[data-inspector-active="true"] .inspect-label {
+  display: inline-block;
   position: absolute;
-  /* Sits in the padding-top strip — top: 4px puts it just below
-   * the outline edge, inside the region. No content collision
-   * because padding-top reserved the space. */
-  top: 4px;
-  left: 4px;
-  padding: 3px 9px;
+  top: 6px;
+  left: 6px;
+  padding: 4px 10px;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-canvas);
-  background: currentColor;
+  line-height: 14px;
   z-index: 100;
   pointer-events: none;
   white-space: nowrap;
-  line-height: 14px;
 }
 
-html[data-inspector-active="true"] .inspect-region[data-inspect-note]:not([data-inspect-note=""])::after {
-  content: attr(data-inspect-note);
+html[data-inspector-active="true"] .inspect-label-note {
+  display: inline-block;
   position: absolute;
-  top: 4px;
-  left: 160px;
-  padding: 3px 9px;
+  top: 6px;
+  left: 180px;
+  padding: 4px 10px;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  color: var(--color-ink-dim);
-  background: var(--color-canvas);
-  border: 1px solid var(--color-rule);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 14px;
+  color: #a8a39a;
+  background: #0a0a0b;
+  border: 1px solid #1f1f22;
   z-index: 100;
   pointer-events: none;
   white-space: nowrap;
-  max-width: 420px;
+  max-width: 480px;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 14px;
 }
 
-/* Per-mode coloring via attribute selectors. */
+/* Per-mode outline color via attribute selector. The label
+ * background is set inline by the component (so the color stays
+ * consistent across both the label and the outline). */
 html[data-inspector-active="true"] .inspect-region[data-inspect="static-shell"],
 html[data-inspector-active="true"] .inspect-region[data-inspect="static-route"] {
-  color: #4ade80;
+  outline-color: #4ade80;
 }
 html[data-inspector-active="true"] .inspect-region[data-inspect="ssg-route"] {
-  color: #34d399;
+  outline-color: #34d399;
 }
 html[data-inspector-active="true"] .inspect-region[data-inspect="cached"] {
-  color: #60a5fa;
+  outline-color: #60a5fa;
 }
 html[data-inspector-active="true"] .inspect-region[data-inspect="edge-proxy"] {
-  color: #4dffff;
+  outline-color: #4dffff;
 }
 html[data-inspector-active="true"] .inspect-region[data-inspect="ppr-hole"] {
-  color: #facc15;
+  outline-color: #facc15;
 }
 html[data-inspector-active="true"] .inspect-region[data-inspect="server-dynamic"] {
-  color: #fb923c;
+  outline-color: #fb923c;
 }
 html[data-inspector-active="true"] .inspect-region[data-inspect="client"] {
-  color: #f87171;
+  outline-color: #f87171;
 }
