@@ -42,7 +42,7 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl(slug),
       types: {
-        "application/ld+json": `${canonicalUrl(slug)}/agent`,
+        "application/ld+json": `${canonicalUrl(slug)}/agent/json`,
       },
     },
     openGraph: {
@@ -118,7 +118,7 @@ export default async function ProductPage({
       <div className="mt-16 flex flex-wrap items-baseline justify-between gap-4 border-t border-[var(--color-rule)] pt-6">
         <AgentTally slug={slug} />
         <Link
-          href={`/products/${slug}/agent`}
+          href={`/products/${slug}/agent/markdown`}
           className="mono text-xs uppercase tracking-wider text-[var(--color-ink-dim)] hover:text-[var(--color-accent)]"
           data-no-page-transition="true"
         >

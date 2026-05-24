@@ -96,10 +96,10 @@ export async function loadAgentsDescriptor(): Promise<AgentsDescriptor> {
           "Returns the full product catalog as a structured JSON array. Includes pricing, negotiation envelope, and stock.",
       },
       productLookup: {
-        urlTemplate: `${ORIGIN}/products/{slug}/agent`,
+        urlTemplate: `${ORIGIN}/products/{slug}/agent/markdown`,
         method: "GET",
         description:
-          "Returns citation-shaped content for a single product. Accept: text/markdown for combined, application/json for JSON-LD only, text/plain for prose.",
+          "Returns citation-shaped content for a single product. Three format-specific URLs: /agent/markdown (combined: citation opening + JSON-LD fence + prose), /agent/json (Schema.org Product/Offer JSON-LD only), /agent/plain (citation opening + prose, no JSON-LD). All three are statically prerendered per SKU and served from the edge cache. The bare /agent endpoint 308-redirects to /agent/markdown for backward compatibility.",
       },
       checkout: {
         url: `${ORIGIN}/api/agent/checkout`,
@@ -135,7 +135,7 @@ export async function loadAgentsDescriptor(): Promise<AgentsDescriptor> {
       name: p.name,
       category: p.category,
       url: `${ORIGIN}/products/${p.slug}`,
-      agentUrl: `${ORIGIN}/products/${p.slug}/agent`,
+      agentUrl: `${ORIGIN}/products/${p.slug}/agent/markdown`,
       listCents: p.pricing.listCents,
       negotiable: p.pricing.negotiable,
       inStock: p.inventory > 0,
@@ -151,7 +151,7 @@ export function renderLlmsTxt(d: AgentsDescriptor): string {
   lines.push(`# anchor`);
   lines.push("");
   lines.push(
-    `> AI-native product catalog. Every product has a human page AND an LLM-facing endpoint at /products/{slug}/agent. Full capability descriptor at ${d.origin}/.well-known/agents.json.`,
+    `> AI-native product catalog. Every product has a human page AND three statically-cached LLM-facing endpoints: /products/{slug}/agent/markdown (recommended), /agent/json (JSON-LD only), /agent/plain (prose only). Full capability descriptor at ${d.origin}/.well-known/agents.json.`,
   );
   lines.push("");
   lines.push(`## Catalog`);
