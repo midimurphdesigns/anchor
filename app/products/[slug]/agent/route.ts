@@ -23,7 +23,9 @@
  * (stubbed here as a header echo).
  */
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { loadProduct } from "@/lib/product-loader";
+import { classifyAgent, recordFetch } from "@/lib/aeo";
 import {
   canonicalUrl,
   citationBody,
@@ -55,12 +57,19 @@ export async function GET(
 
   const accept = req.headers.get("accept") ?? "";
   const userAgent = req.headers.get("user-agent") ?? "unknown";
+  const bot = classifyAgent(userAgent);
 
-  /* Phase 4 will route this user-agent into the AEO logger via
-   * unstable_after so the response isn't blocked by the write. Stub
-   * for now — echo it on a debug header for verification. */
+  /* The whole point of after() is that the response gets to send
+   * before this callback runs. The crawler sees a sub-50ms TTFB;
+   * we still get the log written. If Upstash is misconfigured the
+   * redis stub no-ops so this stays a free win even in dev. */
+  after(async () => {
+    await recordFetch({ slug, bot, userAgent });
+  });
+
   const debugHeaders = {
     "X-Anchor-Observed-Agent": userAgent.slice(0, 200),
+    "X-Anchor-Bot-Class": bot,
     "X-Anchor-Canonical": canonicalUrl(slug),
     "Cache-Control": "public, max-age=60, s-maxage=300",
   };

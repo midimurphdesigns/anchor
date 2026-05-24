@@ -1,23 +1,32 @@
 /**
- * The dynamic suspense hole in the otherwise-static product page.
+ * The dynamic suspense hole on the otherwise-static product page.
  *
- * Phase 2 stub: returns a placeholder. Phase 4 replaces this with a
- * Redis read counting LLM-user-agent fetches against this slug in
- * the last 7 days. The point of stubbing it now is to prove the PPR
- * shape: the product copy renders at build time, this component
- * suspends and streams in at request time. Curling the page should
- * show product HTML immediately and the tally arriving later.
+ * Now wired to Redis. Counts every LLM-crawler fetch of this slug's
+ * /agent endpoint over the last 7 days, summed across known bot
+ * user-agents. The component renders inside a Suspense boundary on
+ * a PPR page, so the rest of the product page (copy, specs,
+ * JSON-LD) prerenders at build time and this number streams in at
+ * request time.
+ *
+ * If Upstash is unset, the redis stub returns 0 and we render
+ * "—" — still degrades gracefully.
  */
 import { Suspense } from "react";
+import { headers } from "next/headers";
+import { countFetchesAllBots } from "@/lib/aeo";
 
 async function TallyInner({ slug }: { slug: string }) {
-  /* Simulated latency so the PPR hole is observable. Real Phase 4
-   * code awaits a redis.zcount call here. */
-  await new Promise((r) => setTimeout(r, 60));
-  void slug;
+  /* Marks this Suspense hole dynamic under cacheComponents — the
+   * rest of the product page stays prerendered while this streams
+   * in with a fresh Redis read at request time. */
+  await headers();
+  const count = await countFetchesAllBots(slug, 24 * 7);
   return (
     <span className="mono text-xs text-[var(--color-ink-dim)]">
-      AGENT FETCHES (7D): <span className="text-[var(--color-accent)]">—</span>
+      AGENT FETCHES (7D):{" "}
+      <span className="text-[var(--color-accent)]">
+        {count > 0 ? count.toLocaleString() : "—"}
+      </span>
     </span>
   );
 }
