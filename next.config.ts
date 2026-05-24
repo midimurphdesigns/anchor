@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
    * Partial Prerendering (the static-shell + dynamic-hole shape on
    * the product page). One toggle, both features. */
   cacheComponents: true,
+  /* Rewrites expose internal routes at conventional public URLs.
+   * Next's app router treats /.well-known and filenames-with-dots
+   * (like /llms.txt) as private/non-routable, so we author the
+   * handlers under plain paths and rewrite the public URLs to
+   * them. Crawlers hit /.well-known/agents.json and /llms.txt —
+   * the rewrites resolve internally. */
+  async rewrites() {
+    return [
+      { source: "/.well-known/agents.json", destination: "/agents-descriptor" },
+      { source: "/llms.txt", destination: "/llms-txt" },
+    ];
+  },
   async headers() {
     return [
       {
