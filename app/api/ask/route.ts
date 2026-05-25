@@ -22,6 +22,13 @@ import { NextRequest } from "next/server";
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText, convertToModelMessages, stepCountIs } from "ai";
 import { buildAskTools } from "@/lib/ask-tools";
+import {
+  checkLimits,
+  chargeUsd,
+  getClientIp,
+  isOwner,
+} from "@/lib/rate-limit";
+import { haikuCostUsd } from "@/lib/pricing";
 
 export async function POST(req: NextRequest): Promise<Response> {
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -32,6 +39,23 @@ export async function POST(req: NextRequest): Promise<Response> {
       }),
       { status: 503, headers: { "Content-Type": "application/json" } },
     );
+  }
+
+  /* Per-IP + daily USD cap. Owner cookie bypasses both. Without
+   * these guards an attacker could open many parallel sessions and
+   * run the Anthropic bill up via the 6-step tool loop. See the
+   * earlier TODO on this file — this is its resolution. */
+  if (!(await isOwner(req))) {
+    const limit = await checkLimits(getClientIp(req));
+    if (!limit.ok) {
+      return new Response(JSON.stringify({ error: limit.message }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(limit.retryAfterSeconds),
+        },
+      });
+    }
   }
 
   const { messages } = (await req.json()) as { messages: unknown[] };
@@ -79,6 +103,12 @@ export async function POST(req: NextRequest): Promise<Response> {
      * propose_navigation — all in one turn. */
     stopWhen: stepCountIs(6),
     temperature: 0.4,
+    /* Bill against the daily USD cap after the stream closes.
+     * onFinish fires once with the totalUsage across all steps so
+     * the multi-step tool loop is accounted for in one charge. */
+    onFinish: async ({ totalUsage }) => {
+      await chargeUsd(haikuCostUsd(totalUsage));
+    },
   });
 
   return result.toUIMessageStreamResponse();

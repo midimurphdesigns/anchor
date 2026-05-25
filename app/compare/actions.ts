@@ -20,12 +20,39 @@
  */
 "use server";
 
+import { headers } from "next/headers";
 import { getProduct } from "@/lib/catalog";
 import { streamComparison, type Comparison } from "@/lib/compare-agent";
+import { checkLimits, chargeUsd, isOwner } from "@/lib/rate-limit";
+import { haikuCostUsd } from "@/lib/pricing";
 
 export type CompareResult =
   | { ok: true; comparison: Comparison }
   | { ok: false; error: string };
+
+/* Server Actions don't have a Request argument; they only see the
+ * inbound headers via the headers() helper. Build a synthetic
+ * Request so the rate-limit helpers used by /api/ask can be reused
+ * here without a parallel cookie/IP extraction path. */
+async function reqFromHeaders(): Promise<Request> {
+  const h = await headers();
+  const init: Record<string, string> = {};
+  const xff = h.get("x-forwarded-for");
+  if (xff) init["x-forwarded-for"] = xff;
+  const real = h.get("x-real-ip");
+  if (real) init["x-real-ip"] = real;
+  const cookie = h.get("cookie");
+  if (cookie) init["cookie"] = cookie;
+  return new Request("https://anchor.local/compare", { headers: init });
+}
+
+function getIpFromHeadersInit(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0]!.trim();
+  const real = req.headers.get("x-real-ip");
+  if (real) return real.trim();
+  return "unknown";
+}
 
 export async function compareProducts(
   slugA: string,
@@ -49,9 +76,26 @@ export async function compareProducts(
     };
   }
 
+  /* Per-IP + daily USD cap, same policy as /api/ask. Server Actions
+   * cannot return 429, so the cap surfaces through the existing
+   * { ok: false, error } envelope — the compare form already renders
+   * error strings, so this is zero-UI-work. */
+  const req = await reqFromHeaders();
+  if (!(await isOwner(req))) {
+    const limit = await checkLimits(getIpFromHeadersInit(req));
+    if (!limit.ok) {
+      return { ok: false, error: limit.message };
+    }
+  }
+
   try {
     const result = streamComparison({ a, b });
     const comparison = await result.object;
+    /* Bill actual token spend after the final object resolves. The
+     * Vercel AI SDK exposes usage as a promise on the result; await
+     * it so we charge real cost, not zero. */
+    const usage = await result.usage;
+    await chargeUsd(haikuCostUsd(usage));
     return { ok: true, comparison };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
