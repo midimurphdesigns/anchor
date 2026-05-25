@@ -31,19 +31,19 @@ export default function HomePage() {
 
             <div className="mt-12 flex flex-wrap gap-x-8 gap-y-3">
               <Link
-                href="/playground"
+                href="/ask"
                 data-magnetic
                 className="mono inline-flex items-baseline gap-3 border-b border-[color:var(--color-accent)] pb-1 text-sm uppercase tracking-[0.18em] text-[color:var(--color-accent)]"
               >
-                Try the checkout pipeline
+                Ask the on-page agent
                 <span aria-hidden>→</span>
               </Link>
               <Link
-                href="/agents"
+                href="/playground"
                 data-magnetic
                 className="mono inline-flex items-baseline gap-3 border-b border-[color:var(--color-rule)] pb-1 text-sm uppercase tracking-[0.18em] text-[color:var(--color-ink-dim)] hover:text-[color:var(--color-ink)] hover:border-[color:var(--color-ink-dim)]"
               >
-                For agents
+                Try the checkout pipeline
                 <span aria-hidden>→</span>
               </Link>
             </div>
@@ -140,6 +140,11 @@ export default function HomePage() {
             Where else to go
           </h2>
           <div className="mt-8 grid grid-cols-1 gap-y-10 gap-x-12 sm:grid-cols-2 lg:grid-cols-3">
+            <DiscoveryLink
+              href="/ask"
+              label="Ask"
+              copy="Talk to anchor's on-page agent. It can list the catalog, walk the eight-check pipeline, fetch agents.json, and propose navigations you accept with a click."
+            />
             <DiscoveryLink
               href="/playground"
               label="Playground"

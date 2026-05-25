@@ -47,10 +47,16 @@ export type BotKind =
   | "meta-externalagent"
   | "Amazonbot"
   | "cohere-ai"
+  | "anchor-ask"
   | "human"
   | "unknown";
 
 const SIGNATURES: ReadonlyArray<readonly [BotKind, RegExp]> = [
+  /* anchor-ask first — distinguishes site-driven agent traffic
+   * (visitor talking to the on-page agent) from external LLM
+   * crawler traffic. The dashboard reads these as a separate
+   * bot class so the AEO numbers stay honest. */
+  ["anchor-ask", /anchor-ask/i],
   ["ChatGPT-User", /ChatGPT-User/i],
   ["GPTBot", /GPTBot/i],
   ["Perplexity-User", /Perplexity-User/i],
@@ -75,6 +81,7 @@ export function classifyAgent(userAgent: string | null): BotKind {
 }
 
 export const BOT_KINDS: ReadonlyArray<BotKind> = [
+  "anchor-ask",
   "ChatGPT-User",
   "GPTBot",
   "Perplexity-User",

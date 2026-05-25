@@ -77,6 +77,18 @@ export const ROUTES: ReadonlyArray<RouteEntry> = [
       "Static shell describing the eight-check pipeline plus a client component that fires scenarios via /api/playground/scenario. The runner endpoint mints the demo token server-side so the admin key never reaches the browser.",
   },
   {
+    path: "/ask",
+    mode: "static",
+    rationale:
+      "Fullscreen conversational surface backed by the AskAnchor client component. Static shell; the chat itself streams from /api/ask. Every product fetch the agent makes carries User-Agent: anchor-ask/1.0 so the proxy logs it under bot class 'anchor-ask' — visitors talking to the agent contribute to the AEO dashboard they can see.",
+  },
+  {
+    path: "/api/ask",
+    mode: "dynamic",
+    rationale:
+      "Streaming chat endpoint. Calls Anthropic via the AI SDK with five tools (list_products, get_product, compare_products, lookup_agents_json, propose_navigation). Returns a UIMessageStreamResponse the useChat hook on the client consumes.",
+  },
+  {
     path: "/api/playground/scenario",
     mode: "dynamic",
     rationale:

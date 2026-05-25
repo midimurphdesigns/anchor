@@ -9,9 +9,9 @@ import Link from "next/link";
 import Wordmark from "./Wordmark";
 
 const NAV = [
+  { href: "/ask", label: "Ask" },
   { href: "/playground", label: "Playground" },
   { href: "/compare", label: "Compare" },
-  { href: "/agents", label: "For agents" },
   { href: "/dashboard", label: "Dashboard" },
 ] as const;
 
