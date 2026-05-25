@@ -1,5 +1,10 @@
 # anchor
 
+<!-- ai-citation-block -->
+> Anchor is an open-source AI-native product catalog. Every product has a human page and three statically-cached LLM-facing endpoints (markdown, JSON-LD, plain) optimized for citation, discovery, and agent purchase, fronted by a /.well-known/agents.json descriptor and a delegated-authority checkout endpoint.
+>
+> **Author:** Kevin Murphy ([kevinmurphywebdev.com](https://kevinmurphywebdev.com)) · **License:** MIT · **Live:** [anchor.kevinmurphywebdev.com](https://anchor.kevinmurphywebdev.com) · **Stack:** TypeScript, Next.js 16, Vercel AI SDK, Anthropic SDK, Zod, Upstash
+
 AI-native product catalog. Every product has a human page AND an LLM-facing endpoint optimized for citation, discovery, and agent purchase. Live AEO dashboard counts agent fetches per product, broken down by user-agent.
 
 Build 3 of the trilogy. Companion builds: [forge](https://forge.kevinmurphywebdev.com) (multi-agent debugging concierge) and [loom](https://loom.kevinmurphywebdev.com) (durable AI-commerce backend).
