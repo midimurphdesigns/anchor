@@ -522,6 +522,14 @@ html[data-inspector-active="true"] .inspect-region[data-inspect="client"] {
   border-left: 2px solid var(--color-rule);
 }
 
+/* End-of-thread Start-over affordance. Same left padding so it aligns
+ * visually with the message column, but no border on the left so it
+ * reads as a footer action, not as an empty message slot. */
+.ask-message-footer {
+  padding-left: 14px;
+  padding-top: 4px;
+}
+
 .ask-pulse {
   color: var(--color-accent);
   animation: ask-pulse 1.4s ease-in-out infinite;

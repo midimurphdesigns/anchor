@@ -72,7 +72,21 @@ export default function AskAnchor({ fullscreen = false }: AskAnchorProps) {
     () => new DefaultChatTransport({ api: "/api/ask" }),
     [],
   );
-  const { messages, sendMessage, status, error } = useChat({ transport });
+  const { messages, sendMessage, status, error, setMessages, stop, clearError } =
+    useChat({ transport });
+
+  /* Reset the conversation back to the starter-prompt empty state.
+   * Stops any in-flight stream, clears messages, clears errors,
+   * empties the composer. The starter chips re-render because the
+   * empty-state branch keys off messages.length === 0. */
+  function resetConversation() {
+    if (status === "submitted" || status === "streaming") {
+      stop();
+    }
+    setMessages([]);
+    clearError();
+    setInput("");
+  }
 
   /* Auto-scroll the thread to the latest message when new content
    * lands. The chat surface scrolls inside its own container, not
@@ -128,6 +142,17 @@ export default function AskAnchor({ fullscreen = false }: AskAnchorProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {messages.length > 0 ? (
+            <button
+              type="button"
+              onClick={resetConversation}
+              data-magnetic
+              aria-label="Start a new conversation"
+              className="mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-ink-dim)] hover:text-[color:var(--color-accent)]"
+            >
+              Reset ↺
+            </button>
+          ) : null}
           {!fullscreen ? (
             <a
               href="/ask"
@@ -235,7 +260,23 @@ export default function AskAnchor({ fullscreen = false }: AskAnchorProps) {
                   <span className="ask-pulse">●</span> thinking
                 </p>
               </li>
-            ) : null}
+            ) : (
+              /* End-of-thread reset affordance. Sits below the most
+               * recent message so a visitor who reads an answer and
+               * wants to explore a different question finds the
+               * Start-over without scrolling up to the header. */
+              <li className="ask-message-footer">
+                <button
+                  type="button"
+                  onClick={resetConversation}
+                  data-magnetic
+                  className="mono inline-flex items-baseline gap-2 text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-ink-dim)] hover:text-[color:var(--color-accent)]"
+                >
+                  <span aria-hidden>↺</span> Start over with the starter
+                  prompts
+                </button>
+              </li>
+            )}
           </ol>
         )}
         {error ? (
