@@ -193,19 +193,39 @@ async function LiveTail() {
 
 export default function DashboardPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
-      <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
-        <Link href="/" className="hover:text-[var(--color-accent)]">
+    <main className="container-edge pt-16 pb-32 sm:pt-24">
+      <nav aria-label="Breadcrumb" className="type-eyebrow">
+        <Link
+          href="/"
+          data-magnetic
+          className="hover:text-[color:var(--color-accent)]"
+        >
           ← /ANCHOR
         </Link>
-        {"  /  DASHBOARD"}
-      </p>
-      <h1 className="display mt-6 text-5xl sm:text-7xl">Dashboard.</h1>
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-dim)]">
-        Live AEO instrumentation. Every fetch of a /agent endpoint by a known
-        LLM crawler shows up here. Force-dynamic — no caching, the numbers are
-        current.
-      </p>
+        <span aria-hidden className="mx-3 text-[color:var(--color-rule)]">/</span>
+        <span>Dashboard</span>
+      </nav>
+
+      <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-12">
+        <header className="lg:col-span-8">
+          <h1 className="type-h1">Dashboard.</h1>
+          <p className="type-lede mt-8">
+            Live AEO instrumentation. Every fetch of a{" "}
+            <code className="mono text-[color:var(--color-accent)]">
+              /agent
+            </code>{" "}
+            endpoint by a known LLM crawler shows up here. Force-dynamic;
+            the numbers are current.
+          </p>
+        </header>
+        <aside className="lg:col-span-4 lg:pt-2">
+          <p className="mono text-xs uppercase tracking-[0.18em] text-[color:var(--color-ink-faint)]">
+            Redis sorted sets via after(). Cache hits stay instrumented
+            because the proxy runs on every request regardless of cache
+            status.
+          </p>
+        </aside>
+      </div>
 
       <Suspense
         fallback={<div className="mono mt-8 text-xs">LOADING TOTALS…</div>}

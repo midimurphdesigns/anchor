@@ -22,26 +22,42 @@ export default async function AgentsPage() {
   const d = await loadAgentsDescriptor();
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
-      <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
-        <Link href="/" className="hover:text-[var(--color-accent)]">
+    <main className="container-edge pt-16 pb-32 sm:pt-24">
+      <nav aria-label="Breadcrumb" className="type-eyebrow">
+        <Link
+          href="/"
+          data-magnetic
+          className="hover:text-[color:var(--color-accent)]"
+        >
           ← /ANCHOR
         </Link>
-        {"  /  AGENTS"}
-      </p>
+        <span aria-hidden className="mx-3 text-[color:var(--color-rule)]">/</span>
+        <span>For agents</span>
+      </nav>
 
-      <h1 className="display mt-6 text-5xl sm:text-7xl">For agents.</h1>
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-dim)]">
-        This page is the human-readable mirror of the machine descriptor at{" "}
-        <a
-          href="/.well-known/agents.json"
-          className="underline decoration-[var(--color-accent)]"
-        >
-          /.well-known/agents.json
-        </a>
-        . Both render from the same source — documentation is the
-        implementation.
-      </p>
+      <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-12">
+        <header className="lg:col-span-8">
+          <h1 className="type-h1">For agents.</h1>
+          <p className="type-lede mt-8">
+            Human-readable mirror of the machine descriptor at{" "}
+            <a
+              data-magnetic
+              href="/.well-known/agents.json"
+              className="text-[color:var(--color-ink)] underline decoration-[color:var(--color-accent)] underline-offset-4"
+            >
+              /.well-known/agents.json
+            </a>
+            . Both render from the same source; documentation is the
+            implementation.
+          </p>
+        </header>
+        <aside className="lg:col-span-4 lg:pt-2">
+          <p className="mono text-xs uppercase tracking-[0.18em] text-[color:var(--color-ink-faint)]">
+            Endpoints, auth model, pricing-negotiation envelope, and rate
+            limits in the Agentic Commerce Protocol shape.
+          </p>
+        </aside>
+      </div>
 
       <section className="mt-16">
         <h2 className="display text-3xl">Capabilities.</h2>

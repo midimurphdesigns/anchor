@@ -31,21 +31,38 @@ export default function ComparePage() {
   }));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
-      <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
-        <Link href="/" className="hover:text-[var(--color-accent)]">
+    <main className="container-edge pt-16 pb-32 sm:pt-24">
+      <nav aria-label="Breadcrumb" className="type-eyebrow">
+        <Link
+          href="/"
+          data-magnetic
+          className="hover:text-[color:var(--color-accent)]"
+        >
           ← /ANCHOR
         </Link>
-        {"  /  COMPARE"}
-      </p>
+        <span aria-hidden className="mx-3 text-[color:var(--color-rule)]">/</span>
+        <span>Compare</span>
+      </nav>
 
-      <h1 className="display mt-6 text-5xl sm:text-7xl">Compare.</h1>
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-dim)]">
-        Pick two products. The comparison agent looks at the specs and decides
-        which UI shape fits: a side-by-side spec table when the two are direct
-        rivals, a pros-and-cons split when they overlap on use case, or a short
-        recommendation when they don't really substitute for each other.
-      </p>
+      <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-12">
+        <header className="lg:col-span-8">
+          <h1 className="type-h1">Compare.</h1>
+          <p className="type-lede mt-8">
+            Pick two products. The comparison agent looks at the specs and
+            decides which UI shape fits: a side-by-side spec table when the
+            two are direct rivals, a pros-and-cons split when they overlap
+            on use case, or a short recommendation when they don't really
+            substitute for each other.
+          </p>
+        </header>
+        <aside className="lg:col-span-4 lg:pt-2">
+          <p className="mono text-xs uppercase tracking-[0.18em] text-[color:var(--color-ink-faint)]">
+            Generative UI via streamObject + Zod discriminated union. The
+            model picks the shape; React switch-renders the matching
+            component.
+          </p>
+        </aside>
+      </div>
 
       <Inspect mode="client" note="CompareForm — 'use client', Server Action → streamObject">
         <CompareForm catalog={catalog} />

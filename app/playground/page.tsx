@@ -30,28 +30,43 @@ export default function PlaygroundPage() {
   }));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
-      <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
-        <Link href="/" className="hover:text-[var(--color-accent)]">
+    <main className="container-edge pt-16 pb-32 sm:pt-24">
+      <nav aria-label="Breadcrumb" className="type-eyebrow">
+        <Link
+          href="/"
+          data-magnetic
+          className="hover:text-[color:var(--color-accent)]"
+        >
           ← /ANCHOR
         </Link>
-        {"  /  PLAYGROUND"}
-      </p>
+        <span aria-hidden className="mx-3 text-[color:var(--color-rule)]">/</span>
+        <span>Playground</span>
+      </nav>
 
-      <h1 className="display mt-6 text-5xl sm:text-7xl">Playground.</h1>
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-dim)]">
-        Five scenarios. Each one fires a real{" "}
-        <code className="mono text-[var(--color-accent)]">
-          POST /api/agent/checkout
-        </code>{" "}
-        against the same pipeline production agents would hit. The token is
-        signed server-side; the response carries every check's verdict. See
-        which one rejects which attack.
-      </p>
+      <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-12">
+        <header className="lg:col-span-8">
+          <h1 className="type-h1">Playground.</h1>
+          <p className="type-lede mt-8">
+            Five scenarios. Each one fires a real{" "}
+            <code className="mono text-[color:var(--color-accent)]">
+              POST /api/agent/checkout
+            </code>{" "}
+            against the same pipeline production agents would hit. The token
+            is signed server-side; the response carries every check's
+            verdict. See which one rejects which attack.
+          </p>
+        </header>
+        <aside className="lg:col-span-4 lg:pt-2">
+          <p className="mono text-xs uppercase tracking-[0.18em] text-[color:var(--color-ink-faint)]">
+            Same scenarios as scripts/test-checkout.ts. Five tests, eleven
+            assertions, all passing in CI.
+          </p>
+        </aside>
+      </div>
 
-      <section className="mt-12 border-t border-[var(--color-rule)] pt-8">
-        <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
-          THE EIGHT-CHECK PIPELINE
+      <section className="mt-16 border-t border-[color:var(--color-rule)] pt-10">
+        <p className="type-eyebrow">
+          The eight-check pipeline
         </p>
         <ol className="mt-6 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
           <Step n={1} label="Token present" />

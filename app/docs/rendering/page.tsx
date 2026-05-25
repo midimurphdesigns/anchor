@@ -34,20 +34,38 @@ const MODE_ORDER: ReadonlyArray<RenderMode> = [
 
 export default function RenderingDocsPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
-      <p className="mono text-xs uppercase tracking-[0.2em] text-[var(--color-ink-dim)]">
-        <Link href="/" className="hover:text-[var(--color-accent)]">
+    <main className="container-edge pt-16 pb-32 sm:pt-24">
+      <nav aria-label="Breadcrumb" className="type-eyebrow">
+        <Link
+          href="/"
+          data-magnetic
+          className="hover:text-[color:var(--color-accent)]"
+        >
           ← /ANCHOR
         </Link>
-        {"  /  DOCS  /  RENDERING"}
-      </p>
+        <span aria-hidden className="mx-3 text-[color:var(--color-rule)]">/</span>
+        <span>Docs</span>
+        <span aria-hidden className="mx-3 text-[color:var(--color-rule)]">/</span>
+        <span>Rendering</span>
+      </nav>
 
-      <h1 className="display mt-6 text-5xl sm:text-7xl">Rendering.</h1>
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-dim)]">
-        Every route in anchor, the mode it picked, and why. The page reads
-        top-to-bottom as a journey from most-static to most-dynamic — the same
-        mental model to use when deciding how to render anything new.
-      </p>
+      <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-12">
+        <header className="lg:col-span-8">
+          <h1 className="type-h1">Rendering.</h1>
+          <p className="type-lede mt-8">
+            Every route in anchor, the mode it picked, and why. The page
+            reads top-to-bottom as a journey from most-static to
+            most-dynamic; the same mental model to use when deciding how to
+            render anything new.
+          </p>
+        </header>
+        <aside className="lg:col-span-4 lg:pt-2">
+          <p className="mono text-xs uppercase tracking-[0.18em] text-[color:var(--color-ink-faint)]">
+            Sourced from lib/render-modes.ts so the docs cannot drift from
+            the routes that ship.
+          </p>
+        </aside>
+      </div>
 
       <section className="mt-16">
         <h2 className="display text-3xl">Legend.</h2>

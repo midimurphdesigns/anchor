@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
 import { geistMono, instrumentSerif, spaceGrotesk } from "@/lib/fonts";
+import Cursor from "@/components/Cursor";
+import Grain from "@/components/Grain";
+import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
 
 /* Render Inspector — dev-mode overlay. Conditional dynamic import
@@ -42,6 +45,9 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
     >
       <body className="min-h-screen w-full overflow-x-hidden">
+        <Grain />
+        <Cursor />
+        <SiteHeader />
         {children}
         {RenderInspector ? <RenderInspector /> : null}
       </body>
