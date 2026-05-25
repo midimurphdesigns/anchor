@@ -71,6 +71,18 @@ export const ROUTES: ReadonlyArray<RouteEntry> = [
       "The form shell prerenders at build time. The AI call only fires when the user submits and the Server Action invokes the comparison agent — no model call happens during the static build.",
   },
   {
+    path: "/playground",
+    mode: "static",
+    rationale:
+      "Static shell describing the eight-check pipeline plus a client component that fires scenarios via /api/playground/scenario. The runner endpoint mints the demo token server-side so the admin key never reaches the browser.",
+  },
+  {
+    path: "/api/playground/scenario",
+    mode: "dynamic",
+    rationale:
+      "Server-side scenario runner. Mints a delegated-authority token with ANCHOR_ADMIN_KEY, calls /api/agent/checkout once per scenario step, returns the full request/response chain to the playground UI. Admin key stays server-side; the browser only ever sees the scenarioId it sent and the response chain it received back.",
+  },
+  {
     path: "/docs/rendering",
     mode: "static",
     rationale:
