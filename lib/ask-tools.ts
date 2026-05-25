@@ -31,8 +31,40 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { CATALOG, getProduct, formatPrice } from "./catalog";
+import { issuePrincipal } from "./principal";
 
 const ANCHOR_ASK_USER_AGENT = "anchor-ask/1.0 (site-internal agent)";
+
+/* Allowlist of routes the propose_navigation tool may target.
+ * Closes the hallucinated-route bug (model invented /checkout which
+ * doesn't exist). Static prefixes match exact routes; the special
+ * 'PRODUCT' check matches /products/<slug> against the real catalog. */
+const ALLOWED_STATIC_ROUTES: ReadonlySet<string> = new Set([
+  "/",
+  "/ask",
+  "/playground",
+  "/compare",
+  "/agents",
+  "/dashboard",
+  "/docs/rendering",
+]);
+
+function isAllowedRoute(href: string): boolean {
+  if (ALLOWED_STATIC_ROUTES.has(href)) return true;
+  /* /products/<slug> where slug matches the catalog. */
+  const productMatch = href.match(/^\/products\/([a-z0-9-]+)$/);
+  if (productMatch) {
+    return CATALOG.some((p) => p.slug === productMatch[1]);
+  }
+  /* /products/<slug>/agent/markdown|json|plain */
+  const agentMatch = href.match(
+    /^\/products\/([a-z0-9-]+)\/agent\/(markdown|json|plain)$/,
+  );
+  if (agentMatch) {
+    return CATALOG.some((p) => p.slug === agentMatch[1]);
+  }
+  return false;
+}
 
 async function fetchInternal(
   origin: string,
@@ -150,14 +182,14 @@ export function buildAskTools(args: { origin: string }) {
 
     propose_navigation: tool({
       description:
-        "Propose that the user navigate to a specific route. The UI renders a confirmation chip; the user clicks to accept. Use this whenever your answer naturally points the user toward another page (e.g. after explaining the checkout pipeline, propose /playground; after listing products, propose /products/<slug>). Always include a one-sentence reason.",
+        "Propose that the user navigate to a specific route. The UI renders a confirmation chip; the user clicks to accept. Use this whenever your answer naturally points the user toward another page that EXISTS. Allowlist: /, /ask, /playground, /compare, /agents, /dashboard, /docs/rendering, /products/<slug>, /products/<slug>/agent/{markdown|json|plain}. Anchor has NO /checkout route — to actually purchase, call purchase_product instead.",
       inputSchema: z.object({
         href: z
           .string()
           .min(1)
           .max(200)
           .describe(
-            "Internal route to propose. Must start with /. Examples: /playground, /dashboard, /products/moonshot-grinder-x1, /docs/rendering",
+            "Internal route to propose. Must start with /. Allowlist enforced at execution: /, /ask, /playground, /compare, /agents, /dashboard, /docs/rendering, /products/<slug>, /products/<slug>/agent/{markdown|json|plain}.",
           ),
         label: z
           .string()
@@ -175,10 +207,94 @@ export function buildAskTools(args: { origin: string }) {
           ),
       }),
       execute: async ({ href, label, reason }) => {
-        /* Tool returns the proposal payload; the client renders the
-         * confirmation chip via a custom message-part renderer. No
-         * router.push() happens server-side. */
+        /* Allowlist check. Closes the hallucinated-route bug. If the
+         * model invents /checkout or /buy or /cart, this rejects with
+         * a structured error the model sees and can recover from in
+         * the same turn (it'll typically retry with a real route). */
+        if (!isAllowedRoute(href)) {
+          return {
+            ok: false,
+            error: `Route ${href} does not exist on anchor. Pick from the allowlist documented in the tool description, or call purchase_product if you mean to actually buy something.`,
+            attempted: href,
+          };
+        }
         return { ok: true, href, label, reason };
+      },
+    }),
+
+    purchase_product: tool({
+      description:
+        "Actually purchase a product on behalf of the visitor. Mints a delegated-authority token server-side, fires POST /api/agent/checkout, returns the full eight-check pipeline verdict. Use this when the visitor says 'buy X' or 'I'll take the X' and you've confirmed the SKU exists. The price is bounded by the SKU's floor (you may negotiate down to floor but not below). Returns the orderId on success, or the specific check that rejected (replay_detected, scope_violation, out_of_stock, below_floor) on failure. Demo-grade: the catalog is fictional, nothing crosses a real payment processor, but the eight-check pipeline is real and the AEO dashboard records every attempt.",
+      inputSchema: z.object({
+        slug: z
+          .string()
+          .min(1)
+          .max(120)
+          .describe("Product slug to purchase. Must match a real catalog slug."),
+        proposedPriceCents: z
+          .number()
+          .int()
+          .nonnegative()
+          .optional()
+          .describe(
+            "Optional negotiated price in cents. If omitted, list price is used. Must be at or above the SKU's floor; below-floor requests return below_floor error.",
+          ),
+      }),
+      execute: async ({ slug, proposedPriceCents }) => {
+        const product = getProduct(slug);
+        if (!product) {
+          return { ok: false, error: `No product with slug ${slug}` };
+        }
+        if (!process.env.ANCHOR_ADMIN_KEY) {
+          return {
+            ok: false,
+            error:
+              "Purchase unavailable: ANCHOR_ADMIN_KEY not configured on the server.",
+          };
+        }
+
+        /* Mint a token scoped to this exact SKU at list price.
+         * Server-side, so the admin key never reaches the model. */
+        const priceToPay = proposedPriceCents ?? product.pricing.listCents;
+        const token = await issuePrincipal({
+          principal: "user_anchor-ask",
+          agent: "anchor-ask",
+          scope: {
+            action: "purchase",
+            maxCents: product.pricing.listCents,
+            sku: slug,
+          },
+          ttlSeconds: 60,
+        });
+
+        const res = await fetch(`${args.origin}/api/agent/checkout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent": ANCHOR_ASK_USER_AGENT,
+            "X-Agent-Principal": token,
+          },
+          body: JSON.stringify({ sku: slug, proposedPriceCents: priceToPay }),
+        });
+        const body = (await res.json()) as Record<string, unknown>;
+        if (res.status === 200) {
+          return {
+            ok: true,
+            status: 200,
+            orderId: body.orderId,
+            chargedCents: body.chargedCents,
+            listCents: body.listCents,
+            savedCents: body.savedCents,
+            name: body.name,
+            quantity: body.quantity,
+          };
+        }
+        return {
+          ok: false,
+          status: res.status,
+          code: body.code,
+          message: body.message,
+        };
       },
     }),
   };
@@ -189,4 +305,5 @@ export type AskToolName =
   | "get_product"
   | "compare_products"
   | "lookup_agents_json"
-  | "propose_navigation";
+  | "propose_navigation"
+  | "purchase_product";

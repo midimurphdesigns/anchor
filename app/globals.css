@@ -107,9 +107,13 @@ a {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: rgba(10, 10, 11, 0.7);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  /* Higher opacity (0.92 vs prior 0.7) + heavier blur so content
+   * underneath doesn't bleed through and create the visible
+   * letterbox issue. Saturate boost keeps the cyan accent legible
+   * when colored content scrolls under the header. */
+  background: rgba(10, 10, 11, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid transparent;
   transition: border-bottom-color 200ms var(--ease-snap);
 }
@@ -546,6 +550,22 @@ html[data-inspector-active="true"] .inspect-region[data-inspect="client"] {
   padding: 10px 12px;
   border: 1px solid var(--color-accent);
   background: rgba(77, 255, 255, 0.04);
+}
+
+/* Purchase success — green-tinted card with the order receipt. */
+.ask-purchase-success {
+  padding: 14px 16px;
+  border: 1px solid #4ade80;
+  background: rgba(74, 222, 128, 0.04);
+}
+
+/* Purchase failure — orange-tinted card with the check-name +
+ * rejection reason. Reuses the same color tier the render-inspector
+ * uses for 'server-dynamic'. */
+.ask-purchase-fail {
+  padding: 14px 16px;
+  border: 1px solid #fb923c;
+  background: rgba(251, 146, 60, 0.04);
 }
 .ask-nav-accept {
   display: inline-flex;

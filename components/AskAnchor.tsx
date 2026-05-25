@@ -379,6 +379,73 @@ function ToolResult({
     );
   }
 
+  if (name === "purchase_product") {
+    const result = output as {
+      ok?: boolean;
+      status?: number;
+      orderId?: string;
+      chargedCents?: number;
+      listCents?: number;
+      savedCents?: number;
+      name?: string;
+      code?: string;
+      message?: string;
+      error?: string;
+    };
+    if (result.ok) {
+      return (
+        <div className="ask-purchase-success">
+          <p className="mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-ink-faint)]">
+            Order confirmed
+          </p>
+          <p className="display mt-2 text-2xl leading-tight">
+            {result.name}
+          </p>
+          <dl className="mono mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-[12px]">
+            <dt className="text-[color:var(--color-ink-dim)]">Order ID</dt>
+            <dd className="text-[color:var(--color-ink)] break-all">
+              {result.orderId}
+            </dd>
+            <dt className="text-[color:var(--color-ink-dim)]">Charged</dt>
+            <dd className="text-[color:var(--color-accent)]">
+              ${((result.chargedCents ?? 0) / 100).toFixed(2)}
+            </dd>
+            {result.savedCents && result.savedCents > 0 ? (
+              <>
+                <dt className="text-[color:var(--color-ink-dim)]">Saved</dt>
+                <dd className="text-[color:var(--color-accent)]">
+                  ${(result.savedCents / 100).toFixed(2)} off list
+                </dd>
+              </>
+            ) : null}
+          </dl>
+          <p className="mt-4 text-[11px] leading-relaxed text-[color:var(--color-ink-dim)]">
+            Demo order. Catalog is fictional; nothing crosses a real
+            payment processor. The eight-check pipeline IS real and this
+            attempt is recorded on the AEO dashboard.
+          </p>
+        </div>
+      );
+    }
+    return (
+      <div className="ask-purchase-fail">
+        <p className="mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-ink-faint)]">
+          Purchase rejected by check{" "}
+          <span className="text-[color:var(--color-accent)]">
+            {result.code ?? "unknown"}
+          </span>
+        </p>
+        <p className="mt-2 text-[13px] leading-relaxed text-[color:var(--color-ink)]">
+          {result.message ?? result.error ?? "Unknown failure."}
+        </p>
+        <p className="mt-3 text-[11px] leading-relaxed text-[color:var(--color-ink-dim)]">
+          This rejection came from the same eight-check pipeline the
+          /playground page demonstrates. Status {result.status}.
+        </p>
+      </div>
+    );
+  }
+
   if (name === "list_products") {
     const result = output as {
       products?: Array<{
